@@ -53,13 +53,12 @@
 tile_set = SubResource( 1 )
 cell_size = Vector2( 8, 8 )
 cell_custom_transform = Transform2D( 8, 0, 0, 8, 0, 0 )
-cell_clip_uv = true
 format = 1
 script = ExtResource( 4 )
 
-[node name="CellSpeed" type="Timer" parent="."]
+[node name="PixelSpeed" type="Timer" parent="."]
 process_mode = 0
 wait_time = 0.05
 autostart = true
 
-[connection signal="timeout" from="CellSpeed" to="." method="_on_CellSpeed_timeout"]
+[connection signal="timeout" from="PixelSpeed" to="." method="_on_PixelSpeed_timeout"]

@@ -1,76 +1,78 @@
 extends TileMap
 
-enum { STONE_CELL, SAND_CELL, WATER_CELL }
+signal pixels_count(number)
 
-var weights := {
-	INVALID_CELL: 0,
-	STONE_CELL: 3,
-	SAND_CELL: 2,
-	WATER_CELL: 1
+enum Types { NONE = -1, STONE, SAND, WATER }
+
+var type_weights := {
+	Types.NONE: 0,
+	Types.STONE: 3,
+	Types.SAND: 2,
+	Types.WATER: 1
 }
-var current_type := STONE_CELL
+var current_type = Types.STONE
 
 func _process(_delta):
 	var mouse_position = get_viewport().get_mouse_position()
 	var cell_position = world_to_map(mouse_position)
 	
-	# Add
+	# Add pixel
 	if Input.is_action_pressed("add"):
 		set_cellv(cell_position, current_type)
-	# Delete
+	# Delete pixel
 	if Input.is_action_pressed("delete"):
-		set_cellv(cell_position, INVALID_CELL)
+		set_cellv(cell_position, Types.NONE)
 	
-	# Switch type
+	# Switch cell type
 	if Input.is_action_just_pressed("stone"):
-		current_type = STONE_CELL
+		current_type = Types.STONE
 	if Input.is_action_just_pressed("sand"):
-		current_type = SAND_CELL
+		current_type = Types.SAND
 	if Input.is_action_just_pressed("water"):
-		current_type = WATER_CELL
+		current_type = Types.WATER
 	
-func physics_cell(type: int):
-	var cells = get_used_cells_by_id(type)
-	for cell in cells:
-		var x = cell.x
-		var y = cell.y
+func physics_pixels(type: int):
+	var pixels = get_used_cells_by_id(type)
+	for pixel in pixels:
+		var x = pixel.x
+		var y = pixel.y
 		var random_x = pow(-1, randi() % 2)
 		
 		# Temporary clean
-		if map_to_world(cell).y > get_viewport_rect().size.y:
-			set_cellv(cell, INVALID_CELL)
+		if map_to_world(pixel).y > get_viewport_rect().size.y:
+			set_cellv(pixel, Types.NONE)
 			continue
 		
-		# Check adjacent cells
-		var left_right = cell_is_free(cell, Vector2(x + random_x, y))
-		var down_left_right = cell_is_free(cell, Vector2(x + random_x, y + 1))
-		var down = cell_is_free(cell, Vector2(x, y + 1))
+		# Check adjacent pixels
+		var left_right = check_swap_pixel(pixel, Vector2(x + random_x, y))
+		var down_left_right = check_swap_pixel(pixel, Vector2(x + random_x, y + 1))
+		var down = check_swap_pixel(pixel, Vector2(x, y + 1))
 		
 		# Movement
 		match type:
-			SAND_CELL:
+			Types.SAND:
 				if down:
-					swap_cell(cell, Vector2(x, y + 1))
+					swap_pixel(pixel, Vector2(x, y + 1))
 				elif left_right && down_left_right:
-					swap_cell(cell, Vector2(x + random_x, y + 1))
-			WATER_CELL:
+					swap_pixel(pixel, Vector2(x + random_x, y + 1))
+			Types.WATER:
 				if down:
-					swap_cell(cell, Vector2(x, y + 1))
+					swap_pixel(pixel, Vector2(x, y + 1))
 				elif left_right && down_left_right:
-					swap_cell(cell, Vector2(x + random_x, y + 1))
+					swap_pixel(pixel, Vector2(x + random_x, y + 1))
 				elif left_right:
-					swap_cell(cell, Vector2(x + random_x, y))
+					swap_pixel(pixel, Vector2(x + random_x, y))
 
-func cell_is_free(from: Vector2, to: Vector2):
-	return weights[get_cellv(from)] > weights[get_cellv(to)]
+func check_swap_pixel(from: Vector2, to: Vector2):
+	return type_weights[get_cellv(from)] > type_weights[get_cellv(to)]
 
-func swap_cell(from: Vector2, to: Vector2):
+func swap_pixel(from: Vector2, to: Vector2):
 	var from_type = get_cellv(from)
 	var to_type = get_cellv(to)
-	if from_type != to_type:
-		set_cellv(from, to_type)
-		set_cellv(to, from_type)
+	set_cellv(from, to_type)
+	set_cellv(to, from_type)
 
-func _on_CellSpeed_timeout():
-	physics_cell(SAND_CELL)
-	physics_cell(WATER_CELL)
+func _on_PixelSpeed_timeout():
+	physics_pixels(Types.SAND)
+	physics_pixels(Types.WATER)
+	emit_signal("pixels_count", get_used_cells().size())

@@ -10,3 +10,5 @@ script = ExtResource( 4 )
 [node name="HUD" parent="." instance=ExtResource( 5 )]
 
 [node name="World" parent="." instance=ExtResource( 1 )]
+
+[connection signal="pixels_count" from="World" to="HUD" method="_on_World_pixels_count"]
