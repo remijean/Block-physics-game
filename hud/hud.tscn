@@ -1,0 +1,16 @@
+[gd_scene format=2]
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="Caption" type="RichTextLabel" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -248.5
+margin_top = -20.0
+margin_right = 248.5
+text = "Add: mouse left / Delete: mouse right / Switch: 1 (Stone) - 2 (Sand) - 3 (Water)"
+__meta__ = {
+"_edit_use_anchors_": false
+}
