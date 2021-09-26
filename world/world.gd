@@ -16,10 +16,10 @@ func _process(_delta):
 	
 	# Add
 	if Input.is_action_pressed("add"):
-		set_cell(cell_position.x, cell_position.y, current_type)
+		set_cellv(cell_position, current_type)
 	# Delete
 	if Input.is_action_pressed("delete"):
-		set_cell(cell_position.x, cell_position.y, INVALID_CELL)
+		set_cellv(cell_position, INVALID_CELL)
 	
 	# Switch type
 	if Input.is_action_just_pressed("stone"):
@@ -28,10 +28,6 @@ func _process(_delta):
 		current_type = SAND_CELL
 	if Input.is_action_just_pressed("water"):
 		current_type = WATER_CELL
-
-func _physics_process(_delta):
-	physics_cell(SAND_CELL)
-	physics_cell(WATER_CELL)
 	
 func physics_cell(type: int):
 	var cells = get_used_cells_by_id(type)
@@ -46,33 +42,35 @@ func physics_cell(type: int):
 			continue
 		
 		# Check adjacent cells
-		var left_right = cell_is_free(cell, x + random_x, y)
-		var down_left_right = cell_is_free(cell, x + random_x, y + 1)
-		var down = cell_is_free(cell, x, y + 1)
+		var left_right = cell_is_free(cell, Vector2(x + random_x, y))
+		var down_left_right = cell_is_free(cell, Vector2(x + random_x, y + 1))
+		var down = cell_is_free(cell, Vector2(x, y + 1))
 		
 		# Movement
 		match type:
 			SAND_CELL:
 				if down:
-					swap_cell(cell, x, y + 1)
+					swap_cell(cell, Vector2(x, y + 1))
 				elif left_right && down_left_right:
-					swap_cell(cell, x + random_x, y + 1)
+					swap_cell(cell, Vector2(x + random_x, y + 1))
 			WATER_CELL:
 				if down:
-					swap_cell(cell, x, y + 1)
+					swap_cell(cell, Vector2(x, y + 1))
 				elif left_right && down_left_right:
-					swap_cell(cell, x + random_x, y + 1)
+					swap_cell(cell, Vector2(x + random_x, y + 1))
 				elif left_right:
-					swap_cell(cell, x + random_x, y)
+					swap_cell(cell, Vector2(x + random_x, y))
 
-func cell_is_free(from: Vector2, x: int, y: int):
-	var from_type = get_cellv(from)
-	var to_type = get_cell(x, y)
-	return weights[from_type] > weights[to_type]
+func cell_is_free(from: Vector2, to: Vector2):
+	return weights[get_cellv(from)] > weights[get_cellv(to)]
 
-func swap_cell(from: Vector2, x: int, y: int):
+func swap_cell(from: Vector2, to: Vector2):
 	var from_type = get_cellv(from)
-	var to_type = get_cell(x, y)
+	var to_type = get_cellv(to)
 	if from_type != to_type:
 		set_cellv(from, to_type)
-		set_cell(x, y, from_type)
+		set_cellv(to, from_type)
+
+func _on_CellSpeed_timeout():
+	physics_cell(SAND_CELL)
+	physics_cell(WATER_CELL)
