@@ -10,11 +10,13 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -247.5
+margin_left = -384.0
 margin_top = -34.0
-margin_right = 247.5
+margin_right = 384.0
 margin_bottom = -20.0
-text = "Add: mouse left / Delete: mouse right / Switch: 1 (Stone) - 2 (Sand) - 3 (Water)"
+text = "Add: mouse left / Delete: mouse right / Switch: 1 (Stone) - 2 (Sand) - 3 (Water) / 4 (Gas) / 5 (Dirt)"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }

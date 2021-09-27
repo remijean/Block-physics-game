@@ -2,14 +2,24 @@ extends TileMap
 
 signal blocks_count(number)
 
-enum { TYPE_NONE = -1, TYPE_STONE, TYPE_SAND, TYPE_WATER }
+enum {
+	TYPE_NONE = -1,
+	TYPE_STONE,
+	TYPE_SAND,
+	TYPE_WATER,
+	TYPE_GAS,
+	TYPE_DIRT
+}
 
 const BRUSH_SIZE := 2
+const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_GAS]
 const WEIGHT_TYPES = {
 	TYPE_NONE: 0,
-	TYPE_STONE: 3,
-	TYPE_SAND: 2,
-	TYPE_WATER: 1
+	TYPE_GAS: 100,
+	TYPE_WATER: 200,
+	TYPE_SAND: 300,
+	TYPE_DIRT: 350,
+	TYPE_STONE: 400
 }
 
 var current_type := TYPE_STONE
@@ -29,24 +39,31 @@ func _process(_delta):
 			for y in BRUSH_SIZE:
 				set_cell(position.x - (BRUSH_SIZE / 2.0) + x, position.y - (BRUSH_SIZE / 2.0) + y, TYPE_NONE)
 	
-	# Switch cell type
+	# Temporary type switch
 	if Input.is_action_just_pressed("stone"):
 		current_type = TYPE_STONE
 	if Input.is_action_just_pressed("sand"):
 		current_type = TYPE_SAND
 	if Input.is_action_just_pressed("water"):
 		current_type = TYPE_WATER
+	if Input.is_action_just_pressed("gas"):
+		current_type = TYPE_GAS
+	if Input.is_action_just_pressed("dirt"):
+		current_type = TYPE_DIRT
 	
 func physics(type: int):
 	var blocks = get_used_cells_by_id(type)
 	for block in blocks:
 		# Temporary clean
-		if map_to_world(block).y > get_viewport_rect().size.y:
+		var position = map_to_world(block).y
+		if position < 0 || position > get_viewport_rect().size.y:
 			set_cellv(block, TYPE_NONE)
 			continue
 		
 		# Directions
 		var random_x = pow(-1, randi() % 2)
+		var up = Vector2(block.x, block.y - 1)
+		var up_left_right = Vector2(block.x + random_x, block.y - 1)
 		var left_right = Vector2(block.x + random_x, block.y)
 		var down_left_right = Vector2(block.x + random_x, block.y + 1)
 		var down = Vector2(block.x, block.y + 1)
@@ -65,6 +82,13 @@ func physics(type: int):
 					swap(block, down_left_right)
 				elif check_swap(block, left_right):
 					swap(block, left_right)
+			TYPE_GAS:
+				if check_swap(block, up):
+					swap(block, up)
+				elif check_swap(block, left_right) && check_swap(block, up_left_right):
+					swap(block, up_left_right)
+				elif check_swap(block, left_right):
+					swap(block, left_right)
 
 func check_swap(from: Vector2, to: Vector2):
 	return WEIGHT_TYPES[get_cellv(from)] > WEIGHT_TYPES[get_cellv(to)]
@@ -76,6 +100,6 @@ func swap(from: Vector2, to: Vector2):
 	set_cellv(to, from_type)
 
 func _on_PhysicsSpeed_timeout():
-	physics(TYPE_SAND)
-	physics(TYPE_WATER)
 	emit_signal("blocks_count", get_used_cells().size())
+	for type in PHYSICS_TYPES:
+		physics(type)
