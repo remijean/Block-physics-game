@@ -1,2 +1,2 @@
-# Pixel physics
-Pixel-based physics with Godot game engine.
+# Block physics game
+Physics-based block game with the Godot game engine.
