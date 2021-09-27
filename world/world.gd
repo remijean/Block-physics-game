@@ -4,7 +4,7 @@ signal blocks_count(number)
 
 enum { TYPE_NONE = -1, TYPE_STONE, TYPE_SAND, TYPE_WATER }
 
-const BRUSH_SIZE = 2
+const BRUSH_SIZE := 2
 const WEIGHT_TYPES = {
 	TYPE_NONE: 0,
 	TYPE_STONE: 3,
@@ -12,7 +12,7 @@ const WEIGHT_TYPES = {
 	TYPE_WATER: 1
 }
 
-var current_type = TYPE_STONE
+var current_type := TYPE_STONE
 
 func _process(_delta):
 	var position = world_to_map(get_viewport().get_mouse_position())
@@ -21,13 +21,13 @@ func _process(_delta):
 	if Input.is_action_pressed("add"):
 		for x in BRUSH_SIZE:
 			for y in BRUSH_SIZE:
-				set_cell(position.x - (BRUSH_SIZE / 2) + x, position.y - (BRUSH_SIZE / 2) + y, current_type)
+				set_cell(position.x - (BRUSH_SIZE / 2.0) + x, position.y - (BRUSH_SIZE / 2.0) + y, current_type)
 	
 	# Delete block
 	if Input.is_action_pressed("delete"):
 		for x in BRUSH_SIZE:
 			for y in BRUSH_SIZE:
-				set_cell(position.x - (BRUSH_SIZE / 2) + x, position.y - (BRUSH_SIZE / 2) + y, TYPE_NONE)
+				set_cell(position.x - (BRUSH_SIZE / 2.0) + x, position.y - (BRUSH_SIZE / 2.0) + y, TYPE_NONE)
 	
 	# Switch cell type
 	if Input.is_action_just_pressed("stone"):
