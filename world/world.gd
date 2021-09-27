@@ -8,20 +8,24 @@ enum {
 	TYPE_SAND,
 	TYPE_WATER,
 	TYPE_GAS,
-	TYPE_DIRT
+	TYPE_DIRT,
+	TYPE_MUD
 }
 
-const BRUSH_SIZE := 2
-const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_GAS]
+const BRUSH_MIN := 1
+const BRUSH_MAX := 6
+const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_GAS, TYPE_MUD]
 const WEIGHT_TYPES = {
 	TYPE_NONE: 0,
 	TYPE_GAS: 100,
 	TYPE_WATER: 200,
 	TYPE_SAND: 300,
-	TYPE_DIRT: 350,
-	TYPE_STONE: 400
+	TYPE_MUD: 400,
+	TYPE_DIRT: 500,
+	TYPE_STONE: 600
 }
 
+var brush_size := 1
 var current_type := TYPE_STONE
 
 func _process(_delta):
@@ -29,15 +33,23 @@ func _process(_delta):
 	
 	# Add block
 	if Input.is_action_pressed("add"):
-		for x in BRUSH_SIZE:
-			for y in BRUSH_SIZE:
-				set_cell(position.x - (BRUSH_SIZE / 2.0) + x, position.y - (BRUSH_SIZE / 2.0) + y, current_type)
+		for x in brush_size:
+			for y in brush_size:
+				set_cell(position.x - (brush_size / 2.0) + x, position.y - (brush_size / 2.0) + y, current_type)
 	
 	# Delete block
 	if Input.is_action_pressed("delete"):
-		for x in BRUSH_SIZE:
-			for y in BRUSH_SIZE:
-				set_cell(position.x - (BRUSH_SIZE / 2.0) + x, position.y - (BRUSH_SIZE / 2.0) + y, TYPE_NONE)
+		for x in brush_size:
+			for y in brush_size:
+				set_cell(position.x - (brush_size / 2.0) + x, position.y - (brush_size / 2.0) + y, TYPE_NONE)
+	
+	# Brush increase
+	if Input.is_action_just_released("brush_increase"):
+		brush_size = int(min(BRUSH_MAX, brush_size + 1))
+	
+	# Brush decrease
+	elif Input.is_action_just_released("brush_decrease"):
+		brush_size = int(max(BRUSH_MIN, brush_size - 1))
 	
 	# Temporary type switch
 	if Input.is_action_just_pressed("stone"):
@@ -50,6 +62,8 @@ func _process(_delta):
 		current_type = TYPE_GAS
 	if Input.is_action_just_pressed("dirt"):
 		current_type = TYPE_DIRT
+	if Input.is_action_just_pressed("mud"):
+		current_type = TYPE_MUD
 	
 func physics(type: int):
 	var blocks = get_used_cells_by_id(type)
@@ -89,6 +103,9 @@ func physics(type: int):
 					swap(block, up_left_right)
 				elif check_swap(block, left_right):
 					swap(block, left_right)
+			TYPE_MUD:
+				if check_swap(block, down):
+					swap(block, down)
 
 func check_swap(from: Vector2, to: Vector2):
 	return WEIGHT_TYPES[get_cellv(from)] > WEIGHT_TYPES[get_cellv(to)]
