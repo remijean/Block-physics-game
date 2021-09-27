@@ -24,15 +24,15 @@ margin_left = 20.0
 margin_top = 20.0
 margin_right = 60.0
 margin_bottom = 34.0
-text = "Pixels:"
+text = "Blocks:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Counter" type="Label" parent="."]
-margin_left = 70.0
+margin_left = 75.0
 margin_top = 20.0
-margin_right = 139.0
+margin_right = 144.0
 margin_bottom = 34.0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -49,9 +49,9 @@ __meta__ = {
 }
 
 [node name="FPS" type="Label" parent="."]
-margin_left = 70.0
+margin_left = 77.0
 margin_top = 40.0
-margin_right = 110.0
+margin_right = 117.0
 margin_bottom = 54.0
 __meta__ = {
 "_edit_use_anchors_": false

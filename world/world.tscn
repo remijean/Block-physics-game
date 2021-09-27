@@ -10,7 +10,7 @@
 0/texture = ExtResource( 1 )
 0/tex_offset = Vector2( 0, 0 )
 0/modulate = Color( 1, 1, 1, 1 )
-0/region = Rect2( 0, 0, 8, 8 )
+0/region = Rect2( 0, 0, 16, 16 )
 0/tile_mode = 0
 0/occluder_offset = Vector2( 0, 0 )
 0/navigation_offset = Vector2( 0, 0 )
@@ -24,7 +24,7 @@
 1/texture = ExtResource( 2 )
 1/tex_offset = Vector2( 0, 0 )
 1/modulate = Color( 1, 1, 1, 1 )
-1/region = Rect2( 0, 0, 8, 8 )
+1/region = Rect2( 0, 0, 16, 16 )
 1/tile_mode = 0
 1/occluder_offset = Vector2( 0, 0 )
 1/navigation_offset = Vector2( 0, 0 )
@@ -38,7 +38,7 @@
 2/texture = ExtResource( 3 )
 2/tex_offset = Vector2( 0, 0 )
 2/modulate = Color( 1, 1, 1, 1 )
-2/region = Rect2( 0, 0, 8, 8 )
+2/region = Rect2( 0, 0, 16, 16 )
 2/tile_mode = 0
 2/occluder_offset = Vector2( 0, 0 )
 2/navigation_offset = Vector2( 0, 0 )
@@ -51,14 +51,14 @@
 
 [node name="World" type="TileMap"]
 tile_set = SubResource( 1 )
-cell_size = Vector2( 8, 8 )
-cell_custom_transform = Transform2D( 8, 0, 0, 8, 0, 0 )
+cell_size = Vector2( 16, 16 )
+cell_custom_transform = Transform2D( 16, 0, 0, 16, 0, 0 )
 format = 1
 script = ExtResource( 4 )
 
-[node name="PixelSpeed" type="Timer" parent="."]
+[node name="PhysicsSpeed" type="Timer" parent="."]
 process_mode = 0
 wait_time = 0.05
 autostart = true
 
-[connection signal="timeout" from="PixelSpeed" to="." method="_on_PixelSpeed_timeout"]
+[connection signal="timeout" from="PhysicsSpeed" to="." method="_on_PhysicsSpeed_timeout"]

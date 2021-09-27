@@ -1,78 +1,81 @@
 extends TileMap
 
-signal pixels_count(number)
+signal blocks_count(number)
 
-enum Types { NONE = -1, STONE, SAND, WATER }
+enum { TYPE_NONE = -1, TYPE_STONE, TYPE_SAND, TYPE_WATER }
 
-var type_weights := {
-	Types.NONE: 0,
-	Types.STONE: 3,
-	Types.SAND: 2,
-	Types.WATER: 1
+const BRUSH_SIZE = 2
+const WEIGHT_TYPES = {
+	TYPE_NONE: 0,
+	TYPE_STONE: 3,
+	TYPE_SAND: 2,
+	TYPE_WATER: 1
 }
-var current_type = Types.STONE
+
+var current_type = TYPE_STONE
 
 func _process(_delta):
-	var mouse_position = get_viewport().get_mouse_position()
-	var cell_position = world_to_map(mouse_position)
+	var position = world_to_map(get_viewport().get_mouse_position())
 	
-	# Add pixel
+	# Add block
 	if Input.is_action_pressed("add"):
-		set_cellv(cell_position, current_type)
-	# Delete pixel
+		for x in BRUSH_SIZE:
+			for y in BRUSH_SIZE:
+				set_cell(position.x - (BRUSH_SIZE / 2) + x, position.y - (BRUSH_SIZE / 2) + y, current_type)
+	
+	# Delete block
 	if Input.is_action_pressed("delete"):
-		set_cellv(cell_position, Types.NONE)
+		for x in BRUSH_SIZE:
+			for y in BRUSH_SIZE:
+				set_cell(position.x - (BRUSH_SIZE / 2) + x, position.y - (BRUSH_SIZE / 2) + y, TYPE_NONE)
 	
 	# Switch cell type
 	if Input.is_action_just_pressed("stone"):
-		current_type = Types.STONE
+		current_type = TYPE_STONE
 	if Input.is_action_just_pressed("sand"):
-		current_type = Types.SAND
+		current_type = TYPE_SAND
 	if Input.is_action_just_pressed("water"):
-		current_type = Types.WATER
+		current_type = TYPE_WATER
 	
-func physics_pixels(type: int):
-	var pixels = get_used_cells_by_id(type)
-	for pixel in pixels:
-		var x = pixel.x
-		var y = pixel.y
-		var random_x = pow(-1, randi() % 2)
-		
+func physics(type: int):
+	var blocks = get_used_cells_by_id(type)
+	for block in blocks:
 		# Temporary clean
-		if map_to_world(pixel).y > get_viewport_rect().size.y:
-			set_cellv(pixel, Types.NONE)
+		if map_to_world(block).y > get_viewport_rect().size.y:
+			set_cellv(block, TYPE_NONE)
 			continue
 		
-		# Check adjacent pixels
-		var left_right = check_swap_pixel(pixel, Vector2(x + random_x, y))
-		var down_left_right = check_swap_pixel(pixel, Vector2(x + random_x, y + 1))
-		var down = check_swap_pixel(pixel, Vector2(x, y + 1))
+		# Directions
+		var random_x = pow(-1, randi() % 2)
+		var left_right = Vector2(block.x + random_x, block.y)
+		var down_left_right = Vector2(block.x + random_x, block.y + 1)
+		var down = Vector2(block.x, block.y + 1)
 		
-		# Movement
+		# Movements
 		match type:
-			Types.SAND:
-				if down:
-					swap_pixel(pixel, Vector2(x, y + 1))
-				elif left_right && down_left_right:
-					swap_pixel(pixel, Vector2(x + random_x, y + 1))
-			Types.WATER:
-				if down:
-					swap_pixel(pixel, Vector2(x, y + 1))
-				elif left_right && down_left_right:
-					swap_pixel(pixel, Vector2(x + random_x, y + 1))
-				elif left_right:
-					swap_pixel(pixel, Vector2(x + random_x, y))
+			TYPE_SAND:
+				if check_swap(block, down):
+					swap(block, down)
+				elif check_swap(block, left_right) && check_swap(block, down_left_right):
+					swap(block, down_left_right)
+			TYPE_WATER:
+				if check_swap(block, down):
+					swap(block, down)
+				elif check_swap(block, left_right) && check_swap(block, down_left_right):
+					swap(block, down_left_right)
+				elif check_swap(block, left_right):
+					swap(block, left_right)
 
-func check_swap_pixel(from: Vector2, to: Vector2):
-	return type_weights[get_cellv(from)] > type_weights[get_cellv(to)]
+func check_swap(from: Vector2, to: Vector2):
+	return WEIGHT_TYPES[get_cellv(from)] > WEIGHT_TYPES[get_cellv(to)]
 
-func swap_pixel(from: Vector2, to: Vector2):
+func swap(from: Vector2, to: Vector2):
 	var from_type = get_cellv(from)
 	var to_type = get_cellv(to)
 	set_cellv(from, to_type)
 	set_cellv(to, from_type)
 
-func _on_PixelSpeed_timeout():
-	physics_pixels(Types.SAND)
-	physics_pixels(Types.WATER)
-	emit_signal("pixels_count", get_used_cells().size())
+func _on_PhysicsSpeed_timeout():
+	physics(TYPE_SAND)
+	physics(TYPE_WATER)
+	emit_signal("blocks_count", get_used_cells().size())
