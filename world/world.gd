@@ -7,22 +7,20 @@ enum {
 	TYPE_STONE,
 	TYPE_SAND,
 	TYPE_WATER,
-	TYPE_GAS,
 	TYPE_DIRT,
 	TYPE_MUD
 }
 
 const BRUSH_MIN := 1
 const BRUSH_MAX := 8
-const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_GAS, TYPE_MUD]
+const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_MUD]
 const WEIGHT_TYPES = {
 	TYPE_NONE: 0,
-	TYPE_GAS: 100,
-	TYPE_WATER: 200,
-	TYPE_SAND: 300,
-	TYPE_MUD: 400,
-	TYPE_DIRT: 500,
-	TYPE_STONE: 600
+	TYPE_WATER: 100,
+	TYPE_SAND: 200,
+	TYPE_MUD: 200,
+	TYPE_DIRT: 1000,
+	TYPE_STONE: 1000
 }
 
 var brush_size := 1
@@ -59,8 +57,6 @@ func _process(_delta):
 		current_type = TYPE_SAND
 	if Input.is_action_just_pressed("water"):
 		current_type = TYPE_WATER
-	if Input.is_action_just_pressed("gas"):
-		current_type = TYPE_GAS
 	if Input.is_action_just_pressed("dirt"):
 		current_type = TYPE_DIRT
 	if Input.is_action_just_pressed("mud"):
@@ -77,8 +73,6 @@ func physics(type: int):
 		
 		# Directions
 		var random_x = pow(-1, randi() % 2)
-		var up = Vector2(block.x, block.y - 1)
-		var up_left_right = Vector2(block.x + random_x, block.y - 1)
 		var left_right = Vector2(block.x + random_x, block.y)
 		var down_left_right = Vector2(block.x + random_x, block.y + 1)
 		var down = Vector2(block.x, block.y + 1)
@@ -95,13 +89,6 @@ func physics(type: int):
 					swap(block, down)
 				elif check_swap(block, left_right) && check_swap(block, down_left_right):
 					swap(block, down_left_right)
-				elif check_swap(block, left_right):
-					swap(block, left_right)
-			TYPE_GAS:
-				if check_swap(block, up):
-					swap(block, up)
-				elif check_swap(block, left_right) && check_swap(block, up_left_right):
-					swap(block, up_left_right)
 				elif check_swap(block, left_right):
 					swap(block, left_right)
 			TYPE_MUD:

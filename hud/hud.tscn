@@ -10,51 +10,50 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -464.5
-margin_top = -34.0
-margin_right = 464.5
-margin_bottom = -20.0
-text = "Add: mouse left | Delete: mouse right | Brush size: mouse wheel up/down | Switch: 1 (Stone) - 2 (Sand) - 3 (Water) - 4 (Gas) - 5 (Dirt) - 6 (Mud)"
+margin_left = -157.5
+margin_top = -23.0
+margin_right = 157.5
+margin_bottom = -10.0
+text = "Add/Delete: mouse buttons | Brush size: mouse wheel | Block type: numeric keys"
 align = 1
-valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="CounterLabel" type="Label" parent="."]
-margin_left = 20.0
-margin_top = 20.0
-margin_right = 60.0
-margin_bottom = 34.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 35.0
+margin_bottom = 23.0
 text = "Blocks:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Counter" type="Label" parent="."]
-margin_left = 75.0
-margin_top = 20.0
-margin_right = 200.0
-margin_bottom = 34.0
+margin_left = 40.0
+margin_top = 10.0
+margin_right = 100.0
+margin_bottom = 24.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FPSLabel" type="Label" parent="."]
-margin_left = 20.0
-margin_top = 40.0
-margin_right = 60.0
-margin_bottom = 54.0
+margin_left = 10.0
+margin_top = 25.0
+margin_right = 24.0
+margin_bottom = 38.0
 text = "FPS:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FPS" type="Label" parent="."]
-margin_left = 75.0
-margin_top = 40.0
-margin_right = 200.0
-margin_bottom = 54.0
+margin_left = 40.0
+margin_top = 25.0
+margin_right = 100.0
+margin_bottom = 38.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
