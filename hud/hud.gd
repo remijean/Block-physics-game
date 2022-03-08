@@ -3,8 +3,14 @@ extends CanvasLayer
 onready var counter = $Counter
 onready var fps = $FPS
 
-func _process(_delta):
+
+#### BUILT-IN ####
+
+func _process(_delta: float) -> void:
 	fps.set_text(String(Engine.get_frames_per_second()))
 
-func _on_World_blocks_count(number):
+
+#### SIGNAL RESPONSES ####
+
+func _on_World_blocks_count(number) -> void:
 	counter.set_text(String(number))

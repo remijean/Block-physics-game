@@ -2,109 +2,84 @@ extends TileMap
 
 signal blocks_count(number)
 
+# The order must be the same as in the titleset
 enum {
-	TYPE_NONE = -1,
-	TYPE_STONE,
-	TYPE_SAND,
-	TYPE_WATER,
-	TYPE_DIRT,
-	TYPE_MUD
+	BLOCK_NONE = -1,
+	BLOCK_STONE,
+	BLOCK_DIRT,
+	BLOCK_MUD,
+	BLOCK_SAND
 }
 
-const BRUSH_MIN := 1
-const BRUSH_MAX := 8
-const PHYSICS_TYPES = [TYPE_SAND, TYPE_WATER, TYPE_MUD]
-const WEIGHT_TYPES = {
-	TYPE_NONE: 0,
-	TYPE_WATER: 100,
-	TYPE_SAND: 200,
-	TYPE_MUD: 200,
-	TYPE_DIRT: 1000,
-	TYPE_STONE: 1000
+const BLOCKS_WITH_PHYSICS = [
+	BLOCK_SAND,
+	BLOCK_MUD
+]
+
+const BLOCKS_WEIGHT = {
+	BLOCK_NONE: 0,
+	BLOCK_SAND: 1,
+	BLOCK_MUD: 2,
+	BLOCK_STONE: 10,
+	BLOCK_DIRT: 10
 }
 
-var brush_size := 1
-var current_type := TYPE_STONE
+var current_block := BLOCK_STONE
 
-func _process(_delta):
+
+#### BUILT-IN ####
+
+func _process(_delta: float) -> void:
 	var position = world_to_map(get_viewport().get_mouse_position())
-	var brush_size_half = floor(brush_size / 2.0)
 	
 	# Add block
 	if Input.is_action_pressed("add"):
-		for x in brush_size:
-			for y in brush_size:
-				set_cell(position.x - brush_size_half + x, position.y - brush_size_half + y, current_type)
-	
+		set_cell(position.x, position.y, current_block)
+		
 	# Delete block
 	if Input.is_action_pressed("delete"):
-		for x in brush_size:
-			for y in brush_size:
-				set_cell(position.x - brush_size_half + x, position.y - brush_size_half + y, TYPE_NONE)
-	
-	# Brush increase
-	if Input.is_action_just_released("brush_increase"):
-		brush_size = int(min(BRUSH_MAX, brush_size * 2))
-	
-	# Brush decrease
-	elif Input.is_action_just_released("brush_decrease"):
-		brush_size = int(max(BRUSH_MIN, brush_size / 2.0))
-	
-	# Temporary type switch
-	if Input.is_action_just_pressed("stone"):
-		current_type = TYPE_STONE
-	if Input.is_action_just_pressed("sand"):
-		current_type = TYPE_SAND
-	if Input.is_action_just_pressed("water"):
-		current_type = TYPE_WATER
-	if Input.is_action_just_pressed("dirt"):
-		current_type = TYPE_DIRT
-	if Input.is_action_just_pressed("mud"):
-		current_type = TYPE_MUD
-	
-func physics(type: int):
+		set_cell(position.x, position.y, BLOCK_NONE)
+		
+	# Block switch
+	if Input.is_action_just_released("next"):
+		current_block = int(min(3, current_block + 1))
+	elif Input.is_action_just_released("previous"):
+		current_block = int(max(0, current_block - 1))
+
+
+#### LOGIC ####
+
+func _blocks_physics(type: int) -> void:
 	var blocks = get_used_cells_by_id(type)
 	for block in blocks:
-		# Temporary clean
-		var position = map_to_world(block).y
-		if position < 0 || position > get_viewport_rect().size.y:
-			set_cellv(block, TYPE_NONE)
-			continue
-		
 		# Directions
-		var random_x = pow(-1, randi() % 2)
-		var left_right = Vector2(block.x + random_x, block.y)
-		var down_left_right = Vector2(block.x + random_x, block.y + 1)
 		var down = Vector2(block.x, block.y + 1)
+		var diagonal_random = Vector2(block.x + pow(-1, randi() % 2), block.y + 1)
 		
 		# Movements
 		match type:
-			TYPE_SAND:
-				if check_swap(block, down):
-					swap(block, down)
-				elif check_swap(block, left_right) && check_swap(block, down_left_right):
-					swap(block, down_left_right)
-			TYPE_WATER:
-				if check_swap(block, down):
-					swap(block, down)
-				elif check_swap(block, left_right) && check_swap(block, down_left_right):
-					swap(block, down_left_right)
-				elif check_swap(block, left_right):
-					swap(block, left_right)
-			TYPE_MUD:
-				if check_swap(block, down):
-					swap(block, down)
+			BLOCK_MUD:
+				if _check_swap(block, down):
+					_swap(block, down)
+			BLOCK_SAND:
+				if _check_swap(block, down):
+					_swap(block, down)
+				elif _check_swap(block, diagonal_random):
+					_swap(block, diagonal_random)
 
-func check_swap(from: Vector2, to: Vector2):
-	return WEIGHT_TYPES[get_cellv(from)] > WEIGHT_TYPES[get_cellv(to)]
+func _check_swap(from: Vector2, to: Vector2) -> bool:
+	return BLOCKS_WEIGHT[get_cellv(from)] > BLOCKS_WEIGHT[get_cellv(to)]
 
-func swap(from: Vector2, to: Vector2):
+func _swap(from: Vector2, to: Vector2) -> void:
 	var from_type = get_cellv(from)
 	var to_type = get_cellv(to)
 	set_cellv(from, to_type)
 	set_cellv(to, from_type)
 
-func _on_PhysicsSpeed_timeout():
+
+#### SIGNAL RESPONSES ####
+
+func _on_PhysicsSpeed_timeout() -> void:
 	emit_signal("blocks_count", get_used_cells().size())
-	for type in PHYSICS_TYPES:
-		physics(type)
+	for type in BLOCKS_WITH_PHYSICS:
+		_blocks_physics(type)

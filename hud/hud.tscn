@@ -14,11 +14,8 @@ margin_left = -157.5
 margin_top = -23.0
 margin_right = 157.5
 margin_bottom = -10.0
-text = "Add/Delete: mouse buttons | Brush size: mouse wheel | Block type: numeric keys"
+text = "Add/Delete: mouse buttons | Block switch: mouse wheel"
 align = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="CounterLabel" type="Label" parent="."]
 margin_left = 10.0
@@ -26,9 +23,6 @@ margin_top = 10.0
 margin_right = 35.0
 margin_bottom = 23.0
 text = "Blocks:"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Counter" type="Label" parent="."]
 margin_left = 40.0
@@ -45,15 +39,9 @@ margin_top = 25.0
 margin_right = 24.0
 margin_bottom = 38.0
 text = "FPS:"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="FPS" type="Label" parent="."]
 margin_left = 40.0
 margin_top = 25.0
 margin_right = 100.0
 margin_bottom = 38.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
