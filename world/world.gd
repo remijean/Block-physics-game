@@ -51,6 +51,7 @@ func _process(_delta: float) -> void:
 
 func _blocks_physics(type: int) -> void:
 	var blocks = get_used_cells_by_id(type)
+	blocks.shuffle()
 	for block in blocks:
 		# Directions
 		var down = Vector2(block.x, block.y + 1)
